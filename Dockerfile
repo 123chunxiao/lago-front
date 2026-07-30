@@ -1,7 +1,10 @@
-# syntax=lincanvas-registry.cn-hangzhou.cr.aliyuncs.com/lincanvas/dockerfile:1.25
+# syntax=docker/dockerfile:1
+
+ARG NODE_IMAGE=node:24.18.0-alpine
+ARG NGINX_IMAGE=nginx:1.31-alpine
 
 # --- deps stage: install node_modules only ---------------------------------
-FROM lincanvas-registry.cn-hangzhou.cr.aliyuncs.com/lincanvas/node:24.18.0-alpine AS deps
+FROM ${NODE_IMAGE} AS deps
 
 WORKDIR /app
 ENV COREPACK_NPM_REGISTRY=https://registry.npmmirror.com
@@ -30,7 +33,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store,sharing=locked \
 
 
 # --- build stage: compile the app ------------------------------------------
-FROM lincanvas-registry.cn-hangzhou.cr.aliyuncs.com/lincanvas/node:24.18.0-alpine AS build
+FROM ${NODE_IMAGE} AS build
 
 WORKDIR /app
 ENV NODE_OPTIONS="--max-old-space-size=4096"
@@ -66,7 +69,7 @@ RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
 
 
 # --- runtime stage: nginx serving the built dist ---------------------------
-FROM lincanvas-registry.cn-hangzhou.cr.aliyuncs.com/lincanvas/nginx:1.31-alpine AS runtime
+FROM ${NGINX_IMAGE} AS runtime
 
 WORKDIR /usr/share/nginx/html
 
