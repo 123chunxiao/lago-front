@@ -42,6 +42,7 @@ gql`
 type UseCurrentUser = () => {
   isPremium: boolean
   loading: boolean
+  error?: Error
   currentUser?: CurrentUserInfosFragment
   currentMembership?: CurrentUserInfosFragment['memberships'][0]
   refetchCurrentUserInfos: () => void
@@ -54,6 +55,7 @@ export const useCurrentUser: UseCurrentUser = () => {
 
   const {
     data,
+    error,
     loading,
     refetch: refetchCurrentUserInfos,
   } = useGetCurrentUserInfosQuery({
@@ -102,6 +104,7 @@ export const useCurrentUser: UseCurrentUser = () => {
   return {
     currentMembership,
     currentUser: data?.currentUser,
+    error,
     isPremium: data?.currentUser.premium || false,
     loading: loading,
     refetchCurrentUserInfos,

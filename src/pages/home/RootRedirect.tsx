@@ -1,8 +1,10 @@
+import { useApolloClient } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 
 import { Spinner } from '~/components/designSystem/Spinner'
+import { logOut } from '~/core/apolloClient'
 import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
-import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { FORBIDDEN_ROUTE, LOGIN_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -28,7 +30,13 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 const RootRedirect = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { loading: isUserLoading, currentUser } = useCurrentUser()
+  const client = useApolloClient()
+  const {
+    loading: isUserLoading,
+    currentUser,
+    error: currentUserError,
+    refetchCurrentUserInfos,
+  } = useCurrentUser()
   const hasNavigatedRef = useRef(false)
 
   useEffect(() => {
@@ -60,6 +68,36 @@ const RootRedirect = () => {
     hasNavigatedRef.current = true
     navigate(`/${targetSlug}`, { replace: true, state: location.state, skipSlugPrepend: true })
   }, [isUserLoading, currentUser, location.state, navigate])
+
+  if (currentUserError || (!isUserLoading && !currentUser)) {
+    const handleLogOut = async () => {
+      await logOut(client, true)
+      navigate(LOGIN_ROUTE, { replace: true, skipSlugPrepend: true })
+    }
+
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center gap-4 text-center">
+        <h2 className="text-lg font-semibold text-grey-700">Unable to load your account</h2>
+        <p className="text-sm text-grey-600">Please retry or sign in again.</p>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+            onClick={() => refetchCurrentUserInfos()}
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            className="rounded-md border border-grey-300 px-4 py-2 text-sm font-medium text-grey-700"
+            onClick={handleLogOut}
+          >
+            Sign in again
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return <Spinner />
 }

@@ -198,10 +198,16 @@ export default defineConfig(({ mode }) => {
           // code-split and lazy-loaded, only the output filename changes.
           chunkFileNames: (chunkInfo) => {
             const id = chunkInfo.facadeModuleId || ''
-            if (/[\\/]shiki[\\/](?:dist[\\/])?langs[\\/]/.test(id) || /@shikijs[\\/]langs[\\/]/.test(id)) {
+            if (
+              /[\\/]shiki[\\/](?:dist[\\/])?langs[\\/]/.test(id) ||
+              /@shikijs[\\/]langs[\\/]/.test(id)
+            ) {
               return 'assets/shiki-lang-[name].[hash].js'
             }
-            if (/[\\/]shiki[\\/](?:dist[\\/])?themes[\\/]/.test(id) || /@shikijs[\\/]themes[\\/]/.test(id)) {
+            if (
+              /[\\/]shiki[\\/](?:dist[\\/])?themes[\\/]/.test(id) ||
+              /@shikijs[\\/]themes[\\/]/.test(id)
+            ) {
               return 'assets/shiki-theme-[name].[hash].js'
             }
             return 'assets/[name].[hash].js'
@@ -209,10 +215,16 @@ export default defineConfig(({ mode }) => {
           entryFileNames: 'assets/[name].[hash].js',
           sourcemapFileNames: (chunkInfo) => {
             const id = chunkInfo.facadeModuleId || ''
-            if (/[\\/]shiki[\\/](?:dist[\\/])?langs[\\/]/.test(id) || /@shikijs[\\/]langs[\\/]/.test(id)) {
+            if (
+              /[\\/]shiki[\\/](?:dist[\\/])?langs[\\/]/.test(id) ||
+              /@shikijs[\\/]langs[\\/]/.test(id)
+            ) {
               return 'assets/shiki-lang-[name].[hash].js.map'
             }
-            if (/[\\/]shiki[\\/](?:dist[\\/])?themes[\\/]/.test(id) || /@shikijs[\\/]themes[\\/]/.test(id)) {
+            if (
+              /[\\/]shiki[\\/](?:dist[\\/])?themes[\\/]/.test(id) ||
+              /@shikijs[\\/]themes[\\/]/.test(id)
+            ) {
               return 'assets/shiki-theme-[name].[hash].js.map'
             }
             return 'assets/[name].[hash].js.map'
@@ -225,7 +237,9 @@ export default defineConfig(({ mode }) => {
             'vendor-editor': ['ace-builds', 'react-ace'],
             'vendor-sentry': ['@sentry/react'],
             'vendor-forms': ['formik', 'yup', 'zod'],
+            'vendor-utils': ['lodash-es/isEqual'],
           },
+          onlyExplicitManualChunks: true,
         },
       },
       exclude: ['packages/**'],

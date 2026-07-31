@@ -124,9 +124,12 @@ describe('lazyLoad / retry', () => {
 
         const loader = () => Promise.reject(new Error('chunk failed'))
         const LazyComponent = lazyLoad(loader)
+        let rejectedError: unknown
 
         act(() => {
-          triggerLazy(LazyComponent)
+          triggerLazy(LazyComponent).catch((error) => {
+            rejectedError = error
+          })
         })
 
         await act(async () => {
@@ -139,6 +142,7 @@ describe('lazyLoad / retry', () => {
             autoDismiss: false,
           }),
         )
+        expect(rejectedError).toEqual(new Error('chunk failed'))
       })
     })
   })
@@ -176,9 +180,12 @@ describe('lazyLoad / retry', () => {
 
         const loader = () => Promise.reject(new Error('chunk failed'))
         const LazyComponent = lazyLoad(loader)
+        let rejectedError: unknown
 
         act(() => {
-          triggerLazy(LazyComponent)
+          triggerLazy(LazyComponent).catch((error) => {
+            rejectedError = error
+          })
         })
 
         await act(async () => {
@@ -191,6 +198,7 @@ describe('lazyLoad / retry', () => {
             autoDismiss: false,
           }),
         )
+        expect(rejectedError).toEqual(new Error('chunk failed'))
       })
     })
   })
