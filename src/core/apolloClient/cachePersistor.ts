@@ -8,7 +8,6 @@ import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import { cache } from './cache'
 
 const KEY_PREFIX = 'apollo-cache-persist-lago-'
-const CACHE_RESTORE_TIMEOUT_MS = 3000
 
 let persistor: CachePersistor<NormalizedCacheObject> | null = null
 
@@ -32,35 +31,6 @@ const purgeStaleVersionedCaches = async (currentKey: string) => {
   }
 }
 
-const restorePersistedCache = async (currentKey: string) => {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined
-
-  try {
-    const persistedCache = await Promise.race([
-      localForage.getItem<string | NormalizedCacheObject>(currentKey),
-      new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(
-          () => reject(new Error('Apollo cache restore timed out')),
-          CACHE_RESTORE_TIMEOUT_MS,
-        )
-      }),
-    ])
-
-    if (!persistedCache) return
-
-    cache.restore(
-      typeof persistedCache === 'string'
-        ? (JSON.parse(persistedCache) as NormalizedCacheObject)
-        : persistedCache,
-    )
-  } catch {
-    // A stale, corrupt or unavailable IndexedDB cache must never block boot.
-    await localForage.removeItem(currentKey).catch(() => {})
-  } finally {
-    if (timeoutId) clearTimeout(timeoutId)
-  }
-}
-
 // Called once at client init. In customer-portal context we skip persistence
 // entirely: the portal is public, token-scoped and single-customer, and must
 // never restore the shared admin blob into memory nor write into it. The
@@ -73,13 +43,16 @@ export const setupCachePersistor = async (appVersion: string) => {
   const currentKey = `${KEY_PREFIX}${appVersion}`
 
   await purgeStaleVersionedCaches(currentKey)
-  await restorePersistedCache(currentKey)
 
   persistor = new CachePersistor({
     cache,
     storage: new LocalForageWrapper(localForage),
     key: currentKey,
   })
+
+  // The constructor does not restore (unlike the persistCache helper), so we
+  // restore explicitly.
+  await persistor.restore()
 
   return persistor
 }

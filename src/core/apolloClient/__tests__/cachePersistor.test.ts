@@ -5,9 +5,7 @@ const mockRestore = jest.fn()
 const mockPurge = jest.fn()
 const mockPause = jest.fn()
 const mockKeys = jest.fn()
-const mockGetItem = jest.fn()
 const mockRemoveItem = jest.fn()
-const mockCacheRestore = jest.fn()
 
 jest.mock('apollo3-cache-persist', () => ({
   CachePersistor: function CachePersistorMock(options: unknown) {
@@ -24,12 +22,11 @@ jest.mock('localforage', () => ({
   __esModule: true,
   default: {
     keys: (...args: unknown[]) => mockKeys(...args),
-    getItem: (...args: unknown[]) => mockGetItem(...args),
     removeItem: (...args: unknown[]) => mockRemoveItem(...args),
   },
 }))
 
-jest.mock('../cache', () => ({ cache: { id: 'mock-cache', restore: mockCacheRestore } }))
+jest.mock('../cache', () => ({ cache: { id: 'mock-cache' } }))
 
 const CURRENT_KEY = 'apollo-cache-persist-lago-1.0.0'
 const STALE_KEY = 'apollo-cache-persist-lago-0.9.0'
@@ -45,12 +42,7 @@ describe('cachePersistor', () => {
     mockPurge.mockResolvedValue(undefined)
     mockRemoveItem.mockResolvedValue(undefined)
     mockKeys.mockResolvedValue([])
-    mockGetItem.mockResolvedValue(null)
     window.history.pushState({}, '', '/')
-  })
-
-  afterEach(() => {
-    jest.useRealTimers()
   })
 
   describe('setupCachePersistor', () => {
@@ -63,7 +55,6 @@ describe('cachePersistor', () => {
 
         expect(result).toBeNull()
         expect(mockCtor).not.toHaveBeenCalled()
-        expect(mockGetItem).not.toHaveBeenCalled()
         expect(mockRestore).not.toHaveBeenCalled()
       })
     })
@@ -71,7 +62,6 @@ describe('cachePersistor', () => {
     describe('GIVEN a non-portal URL', () => {
       it('THEN should purge only stale version-keyed blobs, keep the current and unrelated keys, then restore', async () => {
         mockKeys.mockResolvedValue([CURRENT_KEY, STALE_KEY, UNRELATED_KEY])
-        mockGetItem.mockResolvedValue(JSON.stringify({ ROOT_QUERY: { __typename: 'Query' } }))
 
         const { setupCachePersistor } = await loadModule()
         const result = await setupCachePersistor('1.0.0')
@@ -82,9 +72,7 @@ describe('cachePersistor', () => {
         expect(mockRemoveItem).not.toHaveBeenCalledWith(UNRELATED_KEY)
 
         expect(mockCtor).toHaveBeenCalledWith(expect.objectContaining({ key: CURRENT_KEY }))
-        expect(mockGetItem).toHaveBeenCalledWith(CURRENT_KEY)
-        expect(mockCacheRestore).toHaveBeenCalledWith({ ROOT_QUERY: { __typename: 'Query' } })
-        expect(mockRestore).not.toHaveBeenCalled()
+        expect(mockRestore).toHaveBeenCalledTimes(1)
         expect(result).not.toBeNull()
       })
 
@@ -95,33 +83,7 @@ describe('cachePersistor', () => {
         const result = await setupCachePersistor('1.0.0')
 
         expect(result).not.toBeNull()
-        expect(mockGetItem).toHaveBeenCalledWith(CURRENT_KEY)
-      })
-
-      it('THEN should discard a corrupt cache and continue booting', async () => {
-        mockGetItem.mockResolvedValue('{not-json')
-
-        const { setupCachePersistor } = await loadModule()
-        const result = await setupCachePersistor('1.0.0')
-
-        expect(mockRemoveItem).toHaveBeenCalledWith(CURRENT_KEY)
-        expect(mockCacheRestore).not.toHaveBeenCalled()
-        expect(result).not.toBeNull()
-      })
-
-      it('THEN should stop waiting after three seconds and continue booting', async () => {
-        jest.useFakeTimers()
-        mockGetItem.mockReturnValue(new Promise(() => {}))
-
-        const { setupCachePersistor } = await loadModule()
-        const setupPromise = setupCachePersistor('1.0.0')
-
-        await jest.advanceTimersByTimeAsync(3000)
-        const result = await setupPromise
-
-        expect(mockRemoveItem).toHaveBeenCalledWith(CURRENT_KEY)
-        expect(mockCacheRestore).not.toHaveBeenCalled()
-        expect(result).not.toBeNull()
+        expect(mockRestore).toHaveBeenCalledTimes(1)
       })
     })
   })

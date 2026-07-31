@@ -12,7 +12,8 @@ ENV NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
 
 # corepack reads the pinned pnpm version from package.json's `packageManager`
 # field — no `pnpm@latest` drift.
-RUN apk add --no-cache python3 build-base && \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --no-cache python3 build-base && \
     corepack enable
 
 # Only copy manifests here so this layer — and the pnpm install below — stay
@@ -39,7 +40,8 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 ENV COREPACK_NPM_REGISTRY=https://registry.npmmirror.com
 ENV NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
 
-RUN apk add --no-cache python3 build-base && \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --no-cache python3 build-base && \
     corepack enable
 
 COPY --from=deps /app /app
@@ -74,11 +76,11 @@ WORKDIR /usr/share/nginx/html
 # Blanket `apk upgrade` pulls the latest CVE patches for every package in the
 # base image. Costs ~5 MB vs hand-curating a package list, but auto-catches
 # new CVEs (e.g. a future zlib bump) without anyone remembering to add them.
-RUN apk upgrade --no-cache && \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk upgrade --no-cache && \
     apk add --no-cache bash
 
 COPY --from=build /app/dist .
-RUN find . -type f -name '*.map' -delete
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
 COPY ./nginx/csp.conf /etc/nginx/conf.d/csp.conf

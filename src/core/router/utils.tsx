@@ -33,21 +33,22 @@ const retry = (
   retriesLeft = 2,
   interval = 1000,
 ): Promise<{ default: ComponentType<Record<string, never>> }> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     fn()
       .then(resolve)
-      .catch((error) => {
+      .catch(() => {
         if (retriesLeft > 0) {
           setTimeout(() => {
-            retry(fn, retriesLeft - 1, interval).then(resolve, reject)
+            retry(fn, retriesLeft - 1, interval).then(resolve)
           }, interval)
         } else if (!hasReloadedRecently()) {
           // All retries exhausted — reload silently to get fresh HTML
           markReloaded()
           window.location.reload()
         } else {
-          // Already reloaded recently and still failing — show a persistent toast
-          // and reject so the nearest error boundary replaces the spinner.
+          // Already reloaded recently and still failing — show persistent toast.
+          // Promise stays pending so Suspense keeps showing <Spinner />
+          // while the rest of the app (sidebar, header) remains usable.
           import('~/core/apolloClient/reactiveVars/toastVar')
             .then(({ addToast }) => {
               addToast({
@@ -57,14 +58,12 @@ const retry = (
                 autoDismiss: false,
               })
             })
-            .catch((toastError) => {
+            .catch((error) => {
               // Toast module also failed to load — nothing more we can do.
-              // The rejected lazy import still reaches the nearest error boundary.
+              // User still sees <Spinner /> from Suspense.
               // eslint-disable-next-line no-console
-              console.error('Failed to load fallback toast module', toastError)
+              console.error('Failed to load fallback toast module', error)
             })
-
-          reject(error)
         }
       })
   })

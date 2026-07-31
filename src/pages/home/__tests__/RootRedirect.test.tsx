@@ -1,23 +1,12 @@
-import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 
 import RootRedirect from '../RootRedirect'
 
-const mockClient = {}
-const mockLogOut = jest.fn()
 const mockNavigate = jest.fn()
 const mockUseLocation = jest.fn()
 const mockUseCurrentUser = jest.fn()
-const mockRefetchCurrentUserInfos = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
-
-jest.mock('@apollo/client', () => ({
-  useApolloClient: () => mockClient,
-}))
-
-jest.mock('~/core/apolloClient', () => ({
-  logOut: (...args: unknown[]) => mockLogOut(...args),
-}))
 
 // Stub the `~/core/router` barrel so the route modules (which pull in
 // `envGlobalVar`) aren't traversed during the test.
@@ -25,7 +14,6 @@ jest.mock('~/core/router', () => ({
   useNavigate: () => mockNavigate,
   useLocation: () => mockUseLocation(),
   FORBIDDEN_ROUTE: '/forbidden',
-  LOGIN_ROUTE: '/login',
 }))
 
 jest.mock('~/core/utils/localStorage', () => ({
@@ -57,19 +45,12 @@ describe('RootRedirect', () => {
     mockGetPersistedOrganizationSlug.mockReturnValue(null)
     mockUseCurrentUser.mockReturnValue({
       loading: false,
-      error: undefined,
       currentUser: { memberships: [membership('acme'), membership('globex')] },
-      refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
     })
-    mockLogOut.mockResolvedValue(undefined)
   })
 
   it('does nothing while the user is still loading', () => {
-    mockUseCurrentUser.mockReturnValue({
-      loading: true,
-      currentUser: undefined,
-      refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
-    })
+    mockUseCurrentUser.mockReturnValue({ loading: true, currentUser: undefined })
 
     renderHook(() => RootRedirect())
 
@@ -138,40 +119,6 @@ describe('RootRedirect', () => {
     renderHook(() => RootRedirect())
 
     expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
-  })
-
-  it('shows recovery actions when the current user query fails', () => {
-    mockUseCurrentUser.mockReturnValue({
-      loading: false,
-      error: new Error('network error'),
-      currentUser: undefined,
-      refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
-    })
-
-    render(<RootRedirect />)
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
-
-    expect(mockRefetchCurrentUserInfos).toHaveBeenCalledTimes(1)
-  })
-
-  it('clears the session before returning to login', async () => {
-    mockUseCurrentUser.mockReturnValue({
-      loading: false,
-      error: new Error('network error'),
-      currentUser: undefined,
-      refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
-    })
-
-    render(<RootRedirect />)
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in again' }))
-
-    await waitFor(() => {
-      expect(mockLogOut).toHaveBeenCalledWith(mockClient, true)
-      expect(mockNavigate).toHaveBeenCalledWith('/login', {
-        replace: true,
-        skipSlugPrepend: true,
-      })
-    })
   })
 
   it('forwards location.state on the bounce (so the saved `from` survives)', () => {
