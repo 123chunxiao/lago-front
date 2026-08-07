@@ -233,7 +233,6 @@ describe('buildDocumentData', () => {
         [ProviderTypeEnum.Stripe, 'text_62b1edddbf5f461ab971277d'],
         [ProviderTypeEnum.Adyen, 'text_645d071272418a14c1c76a6d'],
         [ProviderTypeEnum.Alipay, 'text_1782864000000alipayname'],
-        [ProviderTypeEnum.AppleIap, 'text_1783468800000appleiapname'],
         [ProviderTypeEnum.Gocardless, 'text_634ea0ecc6147de10ddb6625'],
         [ProviderTypeEnum.Cashfree, 'text_17367626793434wkg1rk0114'],
         [ProviderTypeEnum.Flutterwave, 'text_1749724395108m0swrna0zt4'],

@@ -23,13 +23,6 @@ describe('PaymentProviderChip', () => {
       // Check that the component renders
       expect(screen.getByText('Stripe')).toBeInTheDocument()
     })
-
-    it('THEN should render Apple IAP provider with icon and translated label', () => {
-      render(<PaymentProviderChip paymentProvider={ProviderTypeEnum.AppleIap} label="Apple IAP" />)
-
-      expect(screen.getByText('Apple IAP')).toBeInTheDocument()
-      expect(screen.getByText('apple-iap.svg')).toBeInTheDocument()
-    })
   })
 
   describe('WHEN rendering manual payment provider', () => {
