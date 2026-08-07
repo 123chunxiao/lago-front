@@ -15,7 +15,10 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
+  /**
+   * Represents non-fractional signed whole numeric values. Since the value may
+   * exceed the size of a 32-bit integer, it's encoded as a string.
+   */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
   /** Api Logs HTTP status */
@@ -218,6 +221,21 @@ export type AddAlipayPaymentProviderInput = {
   environment?: InputMaybe<AlipayEnvironmentEnum>;
   name: Scalars['String']['input'];
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Apple IAP input arguments */
+export type AddAppleIapPaymentProviderInput = {
+  appAppleId: Scalars['BigInt']['input'];
+  bundleId: Scalars['String']['input'];
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code: Scalars['String']['input'];
+  issuerId: Scalars['String']['input'];
+  keyId: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  privateKey: Scalars['String']['input'];
+  productIds: Array<Scalars['String']['input']>;
+  webhookBaseUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Cashfree input arguments */
@@ -547,6 +565,20 @@ export type ApiLogCollection = {
   collection: Array<ApiLog>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+export type AppleIapProvider = {
+  __typename?: 'AppleIapProvider';
+  appAppleId?: Maybe<Scalars['BigInt']['output']>;
+  bundleId?: Maybe<Scalars['String']['output']>;
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  issuerId?: Maybe<Scalars['String']['output']>;
+  keyId?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  privateKey?: Maybe<Scalars['ObfuscatedString']['output']>;
+  productIds?: Maybe<Array<Scalars['String']['output']>>;
+  webhookBaseUrl?: Maybe<Scalars['String']['output']>;
 };
 
 export type AppliedAddOn = {
@@ -2701,6 +2733,7 @@ export type CurrentOrganization = {
   adyenPaymentProviders?: Maybe<Array<AdyenProvider>>;
   alipayPaymentProviders?: Maybe<Array<AlipayProvider>>;
   apiKey?: Maybe<Scalars['String']['output']>;
+  appleIapPaymentProviders?: Maybe<Array<AppleIapProvider>>;
   appliedDunningCampaign?: Maybe<DunningCampaign>;
   authenticatedMethod: AuthenticationMethodsEnum;
   authenticationMethods: Array<AuthenticationMethodsEnum>;
@@ -3841,6 +3874,7 @@ export type Event = {
 
 export enum EventCategoryEnum {
   Alerts = 'ALERTS',
+  AppleIap = 'APPLE_IAP',
   BillableMetrics = 'BILLABLE_METRICS',
   CreditNotes = 'CREDIT_NOTES',
   Customers = 'CUSTOMERS',
@@ -3868,6 +3902,12 @@ export type EventCollection = {
 export enum EventTypeEnum {
   AlertTriggered = 'alert_triggered',
   All = 'all',
+  AppleIapConsumptionRequested = 'apple_iap_consumption_requested',
+  AppleIapPaymentFailed = 'apple_iap_payment_failed',
+  AppleIapPaymentSucceeded = 'apple_iap_payment_succeeded',
+  AppleIapRefundDeclined = 'apple_iap_refund_declined',
+  AppleIapRefundReversed = 'apple_iap_refund_reversed',
+  AppleIapRefundSucceeded = 'apple_iap_refund_succeeded',
   BillableMetricCreated = 'billable_metric_created',
   BillableMetricDeleted = 'billable_metric_deleted',
   BillableMetricUpdated = 'billable_metric_updated',
@@ -5089,6 +5129,8 @@ export type Mutation = {
   addAdyenPaymentProvider?: Maybe<AdyenProvider>;
   /** Add or update Alipay payment provider */
   addAlipayPaymentProvider?: Maybe<AlipayProvider>;
+  /** Add Apple IAP payment provider */
+  addAppleIapPaymentProvider?: Maybe<AppleIapProvider>;
   /** Add or update Cashfree payment provider */
   addCashfreePaymentProvider?: Maybe<CashfreeProvider>;
   /** Add Flutterwave payment provider */
@@ -5362,6 +5404,8 @@ export type Mutation = {
   /** Update Anrok integration */
   updateAnrokIntegration?: Maybe<AnrokIntegration>;
   updateApiKey?: Maybe<ApiKey>;
+  /** Update Apple IAP payment provider */
+  updateAppleIapPaymentProvider?: Maybe<AppleIapProvider>;
   /** Update Avalara integration */
   updateAvalaraIntegration?: Maybe<AvalaraIntegration>;
   /** Updates an existing Billable metric */
@@ -5474,6 +5518,11 @@ export type MutationAddAdyenPaymentProviderArgs = {
 
 export type MutationAddAlipayPaymentProviderArgs = {
   input: AddAlipayPaymentProviderInput;
+};
+
+
+export type MutationAddAppleIapPaymentProviderArgs = {
+  input: AddAppleIapPaymentProviderInput;
 };
 
 
@@ -6172,6 +6221,11 @@ export type MutationUpdateApiKeyArgs = {
 };
 
 
+export type MutationUpdateAppleIapPaymentProviderArgs = {
+  input: UpdateAppleIapPaymentProviderInput;
+};
+
+
 export type MutationUpdateAvalaraIntegrationArgs = {
   input: UpdateAvalaraIntegrationInput;
 };
@@ -6714,7 +6768,7 @@ export enum PaymentMethodTypeEnum {
   Provider = 'provider'
 }
 
-export type PaymentProvider = AdyenProvider | AlipayProvider | CashfreeProvider | FlutterwaveProvider | GocardlessProvider | MoneyhashProvider | StripeProvider;
+export type PaymentProvider = AdyenProvider | AlipayProvider | AppleIapProvider | CashfreeProvider | FlutterwaveProvider | GocardlessProvider | MoneyhashProvider | StripeProvider;
 
 /** PaymentProviderCollection type */
 export type PaymentProviderCollection = {
@@ -7354,6 +7408,7 @@ export enum ProviderPaymentMethodsEnum {
 export enum ProviderTypeEnum {
   Adyen = 'adyen',
   Alipay = 'alipay',
+  AppleIap = 'apple_iap',
   Cashfree = 'cashfree',
   Flutterwave = 'flutterwave',
   Gocardless = 'gocardless',
@@ -9584,6 +9639,22 @@ export type UpdateApiKeyInput = {
   permissions?: InputMaybe<Scalars['JSON']['input']>;
 };
 
+/** Apple IAP update input arguments */
+export type UpdateAppleIapPaymentProviderInput = {
+  appAppleId?: InputMaybe<Scalars['BigInt']['input']>;
+  bundleId?: InputMaybe<Scalars['String']['input']>;
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  issuerId?: InputMaybe<Scalars['String']['input']>;
+  keyId?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  privateKey?: InputMaybe<Scalars['String']['input']>;
+  productIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  webhookBaseUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Autogenerated input type of UpdateAvalaraIntegration */
 export type UpdateAvalaraIntegrationInput = {
   accountId?: InputMaybe<Scalars['String']['input']>;
@@ -11131,6 +11202,7 @@ export type PaymentProvidersListForCustomerMainInfosQueryVariables = Exact<{
 export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string, name: string, code: string }
       | { __typename?: 'AlipayProvider', id: string, name: string, code: string }
+      | { __typename?: 'AppleIapProvider', id: string, name: string, code: string }
       | { __typename?: 'CashfreeProvider', id: string, name: string, code: string }
       | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
       | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
@@ -11768,6 +11840,7 @@ export type PaymentForPaymentsListFragment = { __typename?: 'Payment', amountCen
   , paymentProvider?:
     | { __typename?: 'AdyenProvider', name: string }
     | { __typename?: 'AlipayProvider', name: string }
+    | { __typename?: 'AppleIapProvider', name: string }
     | { __typename?: 'CashfreeProvider', name: string }
     | { __typename?: 'FlutterwaveProvider', name: string }
     | { __typename?: 'GocardlessProvider', name: string }
@@ -12011,6 +12084,7 @@ export type GetProviderByCodeForAdyenQueryVariables = Exact<{
 export type GetProviderByCodeForAdyenQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
     | { __typename?: 'AlipayProvider', id: string }
+    | { __typename?: 'AppleIapProvider', id: string }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -12042,6 +12116,7 @@ export type GetProviderByCodeForAlipayQueryVariables = Exact<{
 export type GetProviderByCodeForAlipayQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
     | { __typename?: 'AlipayProvider', id: string }
+    | { __typename?: 'AppleIapProvider' }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -12079,6 +12154,38 @@ export type UpdateAnrokIntegrationMutationVariables = Exact<{
 
 export type UpdateAnrokIntegrationMutation = { __typename?: 'Mutation', updateAnrokIntegration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any } | null };
 
+export type AppleIapProviderFieldsFragment = { __typename?: 'AppleIapProvider', id: string, name: string, code: string, issuerId?: string | null, keyId?: string | null, privateKey?: any | null, bundleId?: string | null, appAppleId?: any | null, productIds?: Array<string> | null, webhookBaseUrl?: string | null };
+
+export type GetProviderByCodeForAppleIapQueryVariables = Exact<{
+  code?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProviderByCodeForAppleIapQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider', id: string }
+    | { __typename?: 'AlipayProvider', id: string }
+    | { __typename?: 'AppleIapProvider', id: string }
+    | { __typename?: 'CashfreeProvider', id: string }
+    | { __typename?: 'FlutterwaveProvider', id: string }
+    | { __typename?: 'GocardlessProvider', id: string }
+    | { __typename?: 'MoneyhashProvider', id: string }
+    | { __typename?: 'StripeProvider', id: string }
+   | null };
+
+export type AddAppleIapPaymentProviderMutationVariables = Exact<{
+  input: AddAppleIapPaymentProviderInput;
+}>;
+
+
+export type AddAppleIapPaymentProviderMutation = { __typename?: 'Mutation', addAppleIapPaymentProvider?: { __typename?: 'AppleIapProvider', id: string, name: string, code: string, issuerId?: string | null, keyId?: string | null, privateKey?: any | null, bundleId?: string | null, appAppleId?: any | null, productIds?: Array<string> | null, webhookBaseUrl?: string | null } | null };
+
+export type UpdateAppleIapPaymentProviderMutationVariables = Exact<{
+  input: UpdateAppleIapPaymentProviderInput;
+}>;
+
+
+export type UpdateAppleIapPaymentProviderMutation = { __typename?: 'Mutation', updateAppleIapPaymentProvider?: { __typename?: 'AppleIapProvider', id: string, name: string, code: string, issuerId?: string | null, keyId?: string | null, privateKey?: any | null, bundleId?: string | null, appAppleId?: any | null, productIds?: Array<string> | null, webhookBaseUrl?: string | null } | null };
+
 export type AddAvalaraIntegrationDialogFragment = { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any, name: string };
 
 export type CreateAvalaraIntegrationMutationVariables = Exact<{
@@ -12105,6 +12212,7 @@ export type GetProviderByCodeForCashfreeQueryVariables = Exact<{
 export type GetProviderByCodeForCashfreeQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
     | { __typename?: 'AlipayProvider', id: string }
+    | { __typename?: 'AppleIapProvider', id: string }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -12190,6 +12298,7 @@ export type GetProviderByCodeForFlutterwaveQueryVariables = Exact<{
 export type GetProviderByCodeForFlutterwaveQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
     | { __typename?: 'AlipayProvider', id: string }
+    | { __typename?: 'AppleIapProvider', id: string }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -12221,6 +12330,7 @@ export type GetProviderByCodeForGocardlessQueryVariables = Exact<{
 export type GetProviderByCodeForGocardlessQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
     | { __typename?: 'AlipayProvider', id: string }
+    | { __typename?: 'AppleIapProvider', id: string }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -12261,6 +12371,7 @@ export type GetProviderByCodeForMoneyhashQueryVariables = Exact<{
 export type GetProviderByCodeForMoneyhashQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
     | { __typename?: 'AlipayProvider', id: string }
+    | { __typename?: 'AppleIapProvider', id: string }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -12324,6 +12435,7 @@ export type GetProviderByCodeForStripeQueryVariables = Exact<{
 export type GetProviderByCodeForStripeQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string }
     | { __typename?: 'AlipayProvider', id: string }
+    | { __typename?: 'AppleIapProvider', id: string }
     | { __typename?: 'CashfreeProvider', id: string }
     | { __typename?: 'FlutterwaveProvider', id: string }
     | { __typename?: 'GocardlessProvider', id: string }
@@ -12528,6 +12640,13 @@ export type DestroyNangoIntegrationMutationVariables = Exact<{
 
 
 export type DestroyNangoIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
+
+export type DeleteAppleIapConnectionMutationVariables = Exact<{
+  input: DestroyPaymentProviderInput;
+}>;
+
+
+export type DeleteAppleIapConnectionMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
 export type DeleteAvalaraIntegrationDialogFragment = { __typename?: 'AvalaraIntegration', id: string, name: string };
 
@@ -13343,6 +13462,7 @@ export type CreateDunningCampaignPaymentProviderQueryVariables = Exact<{ [key: s
 export type CreateDunningCampaignPaymentProviderQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename: 'AdyenProvider' }
       | { __typename: 'AlipayProvider' }
+      | { __typename: 'AppleIapProvider' }
       | { __typename: 'CashfreeProvider' }
       | { __typename: 'FlutterwaveProvider' }
       | { __typename: 'GocardlessProvider' }
@@ -14047,6 +14167,7 @@ export type GetPaymentsListQuery = { __typename?: 'Query', payments: { __typenam
       , paymentProvider?:
         | { __typename?: 'AdyenProvider', name: string }
         | { __typename?: 'AlipayProvider', name: string }
+        | { __typename?: 'AppleIapProvider', name: string }
         | { __typename?: 'CashfreeProvider', name: string }
         | { __typename?: 'FlutterwaveProvider', name: string }
         | { __typename?: 'GocardlessProvider', name: string }
@@ -14247,6 +14368,7 @@ export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryV
 export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename: 'AdyenProvider', id: string, name: string, code: string }
       | { __typename: 'AlipayProvider', id: string, name: string, code: string }
+      | { __typename: 'AppleIapProvider', id: string, name: string, code: string }
       | { __typename: 'CashfreeProvider', id: string, name: string, code: string }
       | { __typename: 'FlutterwaveProvider', id: string, name: string, code: string }
       | { __typename: 'GocardlessProvider', id: string, name: string, code: string }
@@ -14666,6 +14788,7 @@ export type GetAdyenIntegrationsDetailsQueryVariables = Exact<{
 export type GetAdyenIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string }
     | { __typename?: 'AlipayProvider' }
+    | { __typename?: 'AppleIapProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -14674,6 +14797,7 @@ export type GetAdyenIntegrationsDetailsQuery = { __typename?: 'Query', paymentPr
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -14692,6 +14816,7 @@ export type GetAdyenIntegrationsListQueryVariables = Exact<{
 export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: any | null, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -14707,6 +14832,7 @@ export type GetAlipayIntegrationDetailsQueryVariables = Exact<{
 export type GetAlipayIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
     | { __typename?: 'AlipayProvider', id: string, name: string, code: string, appId?: string | null, appPrivateKey?: any | null, alipayPublicKey?: any | null, environment: AlipayEnvironmentEnum, successRedirectUrl?: string | null }
+    | { __typename?: 'AppleIapProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -14723,6 +14849,7 @@ export type GetAlipayIntegrationsListQueryVariables = Exact<{
 export type GetAlipayIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider', id: string, name: string, code: string, appId?: string | null, appPrivateKey?: any | null, alipayPublicKey?: any | null, environment: AlipayEnvironmentEnum, successRedirectUrl?: string | null }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -14773,6 +14900,39 @@ export type GetAnrokIntegrationsListQuery = { __typename?: 'Query', integrations
       | { __typename?: 'OktaIntegration' }
       | { __typename?: 'SalesforceIntegration' }
       | { __typename?: 'XeroIntegration' }
+    > } | null };
+
+export type GetAppleIapIntegrationDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetAppleIapIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?:
+    | { __typename?: 'AdyenProvider' }
+    | { __typename?: 'AlipayProvider' }
+    | { __typename?: 'AppleIapProvider', id: string, name: string, code: string, issuerId?: string | null, keyId?: string | null, privateKey?: any | null, bundleId?: string | null, appAppleId?: any | null, productIds?: Array<string> | null, webhookBaseUrl?: string | null }
+    | { __typename?: 'CashfreeProvider' }
+    | { __typename?: 'FlutterwaveProvider' }
+    | { __typename?: 'GocardlessProvider' }
+    | { __typename?: 'MoneyhashProvider' }
+    | { __typename?: 'StripeProvider' }
+   | null };
+
+export type GetAppleIapIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type GetAppleIapIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider', id: string, name: string, code: string, issuerId?: string | null, keyId?: string | null, privateKey?: any | null, bundleId?: string | null, appAppleId?: any | null, productIds?: Array<string> | null, webhookBaseUrl?: string | null }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
     > } | null };
 
 export type AvalaraIntegrationDetailsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any };
@@ -14907,6 +15067,7 @@ export type GetCashfreeIntegrationsDetailsQueryVariables = Exact<{
 export type GetCashfreeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
     | { __typename?: 'AlipayProvider' }
+    | { __typename?: 'AppleIapProvider' }
     | { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -14915,6 +15076,7 @@ export type GetCashfreeIntegrationsDetailsQuery = { __typename?: 'Query', paymen
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider', id: string }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -14933,6 +15095,7 @@ export type GetCashfreeIntegrationsListQueryVariables = Exact<{
 export type GetCashfreeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -14978,6 +15141,7 @@ export type FlutterwaveIntegrationDetailsQueryVariables = Exact<{
 export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
     | { __typename?: 'AlipayProvider' }
+    | { __typename?: 'AppleIapProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null }
     | { __typename?: 'GocardlessProvider' }
@@ -14986,6 +15150,7 @@ export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', payment
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider', id: string }
       | { __typename?: 'GocardlessProvider' }
@@ -15004,6 +15169,7 @@ export type GetFlutterwaveIntegrationsListQueryVariables = Exact<{
 export type GetFlutterwaveIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
       | { __typename?: 'GocardlessProvider' }
@@ -15023,6 +15189,7 @@ export type GetGocardlessIntegrationsDetailsQueryVariables = Exact<{
 export type GetGocardlessIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
     | { __typename?: 'AlipayProvider' }
+    | { __typename?: 'AppleIapProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null }
@@ -15031,6 +15198,7 @@ export type GetGocardlessIntegrationsDetailsQuery = { __typename?: 'Query', paym
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider', id: string }
@@ -15058,6 +15226,7 @@ export type GetGocardlessIntegrationsListQueryVariables = Exact<{
 export type GetGocardlessIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
@@ -15118,6 +15287,7 @@ export type IntegrationsSettingQueryVariables = Exact<{
 export type IntegrationsSettingQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string }
       | { __typename?: 'AlipayProvider', id: string }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider', id: string }
       | { __typename?: 'FlutterwaveProvider', id: string }
       | { __typename?: 'GocardlessProvider', id: string }
@@ -15142,6 +15312,24 @@ export type AlipayIntegrationPresenceQueryVariables = Exact<{
 export type AlipayIntegrationPresenceQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider', id: string }
+      | { __typename?: 'AppleIapProvider' }
+      | { __typename?: 'CashfreeProvider' }
+      | { __typename?: 'FlutterwaveProvider' }
+      | { __typename?: 'GocardlessProvider' }
+      | { __typename?: 'MoneyhashProvider' }
+      | { __typename?: 'StripeProvider' }
+    > } | null };
+
+export type AppleIapIntegrationPresenceQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type AppleIapIntegrationPresenceQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename?: 'AdyenProvider' }
+      | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider', id: string }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -15205,6 +15393,7 @@ export type GetMoneyhashIntegrationsDetailsQueryVariables = Exact<{
 export type GetMoneyhashIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
     | { __typename?: 'AlipayProvider' }
+    | { __typename?: 'AppleIapProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -15213,6 +15402,7 @@ export type GetMoneyhashIntegrationsDetailsQuery = { __typename?: 'Query', payme
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -15231,6 +15421,7 @@ export type GetMoneyhashIntegrationsListQueryVariables = Exact<{
 export type GetMoneyhashIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -15347,6 +15538,7 @@ export type GetStripeIntegrationsDetailsQueryVariables = Exact<{
 export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
     | { __typename?: 'AlipayProvider' }
+    | { __typename?: 'AppleIapProvider' }
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
@@ -15355,6 +15547,7 @@ export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentP
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -15373,6 +15566,7 @@ export type GetStripeIntegrationsListQueryVariables = Exact<{
 export type GetStripeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'AlipayProvider' }
+      | { __typename?: 'AppleIapProvider' }
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
@@ -17110,6 +17304,9 @@ export const PaymentForPaymentsListFragmentDoc = gql`
     ... on AlipayProvider {
       name
     }
+    ... on AppleIapProvider {
+      name
+    }
     ... on CashfreeProvider {
       name
     }
@@ -18075,6 +18272,20 @@ export const AlipayProviderFieldsFragmentDoc = gql`
   alipayPublicKey
   environment
   successRedirectUrl
+}
+    `;
+export const AppleIapProviderFieldsFragmentDoc = gql`
+    fragment AppleIapProviderFields on AppleIapProvider {
+  id
+  name
+  code
+  issuerId
+  keyId
+  privateKey
+  bundleId
+  appAppleId
+  productIds
+  webhookBaseUrl
 }
     `;
 export const AddCashfreeProviderDialogFragmentDoc = gql`
@@ -24293,6 +24504,11 @@ export const PaymentProvidersListForCustomerMainInfosDocument = gql`
         name
         code
       }
+      ... on AppleIapProvider {
+        id
+        name
+        code
+      }
       ... on GocardlessProvider {
         id
         name
@@ -28080,6 +28296,9 @@ export const GetProviderByCodeForAdyenDocument = gql`
     ... on AlipayProvider {
       id
     }
+    ... on AppleIapProvider {
+      id
+    }
     ... on GocardlessProvider {
       id
     }
@@ -28407,6 +28626,138 @@ export function useUpdateAnrokIntegrationMutation(baseOptions?: Apollo.MutationH
 export type UpdateAnrokIntegrationMutationHookResult = ReturnType<typeof useUpdateAnrokIntegrationMutation>;
 export type UpdateAnrokIntegrationMutationResult = Apollo.MutationResult<UpdateAnrokIntegrationMutation>;
 export type UpdateAnrokIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateAnrokIntegrationMutation, UpdateAnrokIntegrationMutationVariables>;
+export const GetProviderByCodeForAppleIapDocument = gql`
+    query getProviderByCodeForAppleIap($code: String) {
+  paymentProvider(code: $code) {
+    ... on AppleIapProvider {
+      id
+    }
+    ... on AdyenProvider {
+      id
+    }
+    ... on AlipayProvider {
+      id
+    }
+    ... on CashfreeProvider {
+      id
+    }
+    ... on FlutterwaveProvider {
+      id
+    }
+    ... on GocardlessProvider {
+      id
+    }
+    ... on MoneyhashProvider {
+      id
+    }
+    ... on StripeProvider {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProviderByCodeForAppleIapQuery__
+ *
+ * To run a query within a React component, call `useGetProviderByCodeForAppleIapQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProviderByCodeForAppleIapQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProviderByCodeForAppleIapQuery({
+ *   variables: {
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useGetProviderByCodeForAppleIapQuery(baseOptions?: Apollo.QueryHookOptions<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>(GetProviderByCodeForAppleIapDocument, options);
+      }
+export function useGetProviderByCodeForAppleIapLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>(GetProviderByCodeForAppleIapDocument, options);
+        }
+// @ts-ignore
+export function useGetProviderByCodeForAppleIapSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>;
+export function useGetProviderByCodeForAppleIapSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>): Apollo.UseSuspenseQueryResult<GetProviderByCodeForAppleIapQuery | undefined, GetProviderByCodeForAppleIapQueryVariables>;
+export function useGetProviderByCodeForAppleIapSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>(GetProviderByCodeForAppleIapDocument, options);
+        }
+export type GetProviderByCodeForAppleIapQueryHookResult = ReturnType<typeof useGetProviderByCodeForAppleIapQuery>;
+export type GetProviderByCodeForAppleIapLazyQueryHookResult = ReturnType<typeof useGetProviderByCodeForAppleIapLazyQuery>;
+export type GetProviderByCodeForAppleIapSuspenseQueryHookResult = ReturnType<typeof useGetProviderByCodeForAppleIapSuspenseQuery>;
+export type GetProviderByCodeForAppleIapQueryResult = Apollo.QueryResult<GetProviderByCodeForAppleIapQuery, GetProviderByCodeForAppleIapQueryVariables>;
+export const AddAppleIapPaymentProviderDocument = gql`
+    mutation addAppleIapPaymentProvider($input: AddAppleIapPaymentProviderInput!) {
+  addAppleIapPaymentProvider(input: $input) {
+    ...AppleIapProviderFields
+  }
+}
+    ${AppleIapProviderFieldsFragmentDoc}`;
+export type AddAppleIapPaymentProviderMutationFn = Apollo.MutationFunction<AddAppleIapPaymentProviderMutation, AddAppleIapPaymentProviderMutationVariables>;
+
+/**
+ * __useAddAppleIapPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useAddAppleIapPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAppleIapPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAppleIapPaymentProviderMutation, { data, loading, error }] = useAddAppleIapPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddAppleIapPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<AddAppleIapPaymentProviderMutation, AddAppleIapPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddAppleIapPaymentProviderMutation, AddAppleIapPaymentProviderMutationVariables>(AddAppleIapPaymentProviderDocument, options);
+      }
+export type AddAppleIapPaymentProviderMutationHookResult = ReturnType<typeof useAddAppleIapPaymentProviderMutation>;
+export type AddAppleIapPaymentProviderMutationResult = Apollo.MutationResult<AddAppleIapPaymentProviderMutation>;
+export type AddAppleIapPaymentProviderMutationOptions = Apollo.BaseMutationOptions<AddAppleIapPaymentProviderMutation, AddAppleIapPaymentProviderMutationVariables>;
+export const UpdateAppleIapPaymentProviderDocument = gql`
+    mutation updateAppleIapPaymentProvider($input: UpdateAppleIapPaymentProviderInput!) {
+  updateAppleIapPaymentProvider(input: $input) {
+    ...AppleIapProviderFields
+  }
+}
+    ${AppleIapProviderFieldsFragmentDoc}`;
+export type UpdateAppleIapPaymentProviderMutationFn = Apollo.MutationFunction<UpdateAppleIapPaymentProviderMutation, UpdateAppleIapPaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateAppleIapPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateAppleIapPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAppleIapPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAppleIapPaymentProviderMutation, { data, loading, error }] = useUpdateAppleIapPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAppleIapPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAppleIapPaymentProviderMutation, UpdateAppleIapPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAppleIapPaymentProviderMutation, UpdateAppleIapPaymentProviderMutationVariables>(UpdateAppleIapPaymentProviderDocument, options);
+      }
+export type UpdateAppleIapPaymentProviderMutationHookResult = ReturnType<typeof useUpdateAppleIapPaymentProviderMutation>;
+export type UpdateAppleIapPaymentProviderMutationResult = Apollo.MutationResult<UpdateAppleIapPaymentProviderMutation>;
+export type UpdateAppleIapPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateAppleIapPaymentProviderMutation, UpdateAppleIapPaymentProviderMutationVariables>;
 export const CreateAvalaraIntegrationDocument = gql`
     mutation createAvalaraIntegration($input: CreateAvalaraIntegrationInput!) {
   createAvalaraIntegration(input: $input) {
@@ -28485,6 +28836,9 @@ export const GetProviderByCodeForCashfreeDocument = gql`
       id
     }
     ... on AlipayProvider {
+      id
+    }
+    ... on AppleIapProvider {
       id
     }
     ... on GocardlessProvider {
@@ -28826,6 +29180,9 @@ export const GetProviderByCodeForFlutterwaveDocument = gql`
     ... on AlipayProvider {
       id
     }
+    ... on AppleIapProvider {
+      id
+    }
     ... on CashfreeProvider {
       id
     }
@@ -28955,6 +29312,9 @@ export const GetProviderByCodeForGocardlessDocument = gql`
       id
     }
     ... on AlipayProvider {
+      id
+    }
+    ... on AppleIapProvider {
       id
     }
     ... on CashfreeProvider {
@@ -29120,6 +29480,9 @@ export const GetProviderByCodeForMoneyhashDocument = gql`
       id
     }
     ... on AlipayProvider {
+      id
+    }
+    ... on AppleIapProvider {
       id
     }
     ... on CashfreeProvider {
@@ -29387,6 +29750,9 @@ export const GetProviderByCodeForStripeDocument = gql`
       id
     }
     ... on AlipayProvider {
+      id
+    }
+    ... on AppleIapProvider {
       id
     }
     ... on GocardlessProvider {
@@ -30203,6 +30569,39 @@ export function useDestroyNangoIntegrationMutation(baseOptions?: Apollo.Mutation
 export type DestroyNangoIntegrationMutationHookResult = ReturnType<typeof useDestroyNangoIntegrationMutation>;
 export type DestroyNangoIntegrationMutationResult = Apollo.MutationResult<DestroyNangoIntegrationMutation>;
 export type DestroyNangoIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyNangoIntegrationMutation, DestroyNangoIntegrationMutationVariables>;
+export const DeleteAppleIapConnectionDocument = gql`
+    mutation deleteAppleIapConnection($input: DestroyPaymentProviderInput!) {
+  destroyPaymentProvider(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteAppleIapConnectionMutationFn = Apollo.MutationFunction<DeleteAppleIapConnectionMutation, DeleteAppleIapConnectionMutationVariables>;
+
+/**
+ * __useDeleteAppleIapConnectionMutation__
+ *
+ * To run a mutation, you first call `useDeleteAppleIapConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAppleIapConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAppleIapConnectionMutation, { data, loading, error }] = useDeleteAppleIapConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteAppleIapConnectionMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAppleIapConnectionMutation, DeleteAppleIapConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAppleIapConnectionMutation, DeleteAppleIapConnectionMutationVariables>(DeleteAppleIapConnectionDocument, options);
+      }
+export type DeleteAppleIapConnectionMutationHookResult = ReturnType<typeof useDeleteAppleIapConnectionMutation>;
+export type DeleteAppleIapConnectionMutationResult = Apollo.MutationResult<DeleteAppleIapConnectionMutation>;
+export type DeleteAppleIapConnectionMutationOptions = Apollo.BaseMutationOptions<DeleteAppleIapConnectionMutation, DeleteAppleIapConnectionMutationVariables>;
 export const DestroyAvalaraIntegrationDocument = gql`
     mutation destroyAvalaraIntegration($input: DestroyIntegrationInput!) {
   destroyIntegration(input: $input) {
@@ -38301,6 +38700,12 @@ export const PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocum
         name
         code
       }
+      ... on AppleIapProvider {
+        __typename
+        id
+        name
+        code
+      }
       ... on FlutterwaveProvider {
         __typename
         id
@@ -40805,6 +41210,99 @@ export type GetAnrokIntegrationsListQueryHookResult = ReturnType<typeof useGetAn
 export type GetAnrokIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsListLazyQuery>;
 export type GetAnrokIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsListSuspenseQuery>;
 export type GetAnrokIntegrationsListQueryResult = Apollo.QueryResult<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>;
+export const GetAppleIapIntegrationDetailsDocument = gql`
+    query getAppleIapIntegrationDetails($id: ID!) {
+  paymentProvider(id: $id) {
+    ... on AppleIapProvider {
+      ...AppleIapProviderFields
+    }
+  }
+}
+    ${AppleIapProviderFieldsFragmentDoc}`;
+
+/**
+ * __useGetAppleIapIntegrationDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetAppleIapIntegrationDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAppleIapIntegrationDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAppleIapIntegrationDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAppleIapIntegrationDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables> & ({ variables: GetAppleIapIntegrationDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>(GetAppleIapIntegrationDetailsDocument, options);
+      }
+export function useGetAppleIapIntegrationDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>(GetAppleIapIntegrationDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetAppleIapIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>;
+export function useGetAppleIapIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAppleIapIntegrationDetailsQuery | undefined, GetAppleIapIntegrationDetailsQueryVariables>;
+export function useGetAppleIapIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>(GetAppleIapIntegrationDetailsDocument, options);
+        }
+export type GetAppleIapIntegrationDetailsQueryHookResult = ReturnType<typeof useGetAppleIapIntegrationDetailsQuery>;
+export type GetAppleIapIntegrationDetailsLazyQueryHookResult = ReturnType<typeof useGetAppleIapIntegrationDetailsLazyQuery>;
+export type GetAppleIapIntegrationDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAppleIapIntegrationDetailsSuspenseQuery>;
+export type GetAppleIapIntegrationDetailsQueryResult = Apollo.QueryResult<GetAppleIapIntegrationDetailsQuery, GetAppleIapIntegrationDetailsQueryVariables>;
+export const GetAppleIapIntegrationsListDocument = gql`
+    query getAppleIapIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on AppleIapProvider {
+        ...AppleIapProviderFields
+      }
+    }
+  }
+}
+    ${AppleIapProviderFieldsFragmentDoc}`;
+
+/**
+ * __useGetAppleIapIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetAppleIapIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAppleIapIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAppleIapIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetAppleIapIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>(GetAppleIapIntegrationsListDocument, options);
+      }
+export function useGetAppleIapIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>(GetAppleIapIntegrationsListDocument, options);
+        }
+// @ts-ignore
+export function useGetAppleIapIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>;
+export function useGetAppleIapIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAppleIapIntegrationsListQuery | undefined, GetAppleIapIntegrationsListQueryVariables>;
+export function useGetAppleIapIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>(GetAppleIapIntegrationsListDocument, options);
+        }
+export type GetAppleIapIntegrationsListQueryHookResult = ReturnType<typeof useGetAppleIapIntegrationsListQuery>;
+export type GetAppleIapIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAppleIapIntegrationsListLazyQuery>;
+export type GetAppleIapIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAppleIapIntegrationsListSuspenseQuery>;
+export type GetAppleIapIntegrationsListQueryResult = Apollo.QueryResult<GetAppleIapIntegrationsListQuery, GetAppleIapIntegrationsListQueryVariables>;
 export const GetAvalaraIntegrationsDetailsDocument = gql`
     query getAvalaraIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
@@ -42057,6 +42555,54 @@ export type AlipayIntegrationPresenceQueryHookResult = ReturnType<typeof useAlip
 export type AlipayIntegrationPresenceLazyQueryHookResult = ReturnType<typeof useAlipayIntegrationPresenceLazyQuery>;
 export type AlipayIntegrationPresenceSuspenseQueryHookResult = ReturnType<typeof useAlipayIntegrationPresenceSuspenseQuery>;
 export type AlipayIntegrationPresenceQueryResult = Apollo.QueryResult<AlipayIntegrationPresenceQuery, AlipayIntegrationPresenceQueryVariables>;
+export const AppleIapIntegrationPresenceDocument = gql`
+    query appleIapIntegrationPresence($limit: Int, $type: ProviderTypeEnum) {
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on AppleIapProvider {
+        id
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useAppleIapIntegrationPresenceQuery__
+ *
+ * To run a query within a React component, call `useAppleIapIntegrationPresenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAppleIapIntegrationPresenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAppleIapIntegrationPresenceQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useAppleIapIntegrationPresenceQuery(baseOptions?: Apollo.QueryHookOptions<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>(AppleIapIntegrationPresenceDocument, options);
+      }
+export function useAppleIapIntegrationPresenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>(AppleIapIntegrationPresenceDocument, options);
+        }
+// @ts-ignore
+export function useAppleIapIntegrationPresenceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>): Apollo.UseSuspenseQueryResult<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>;
+export function useAppleIapIntegrationPresenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>): Apollo.UseSuspenseQueryResult<AppleIapIntegrationPresenceQuery | undefined, AppleIapIntegrationPresenceQueryVariables>;
+export function useAppleIapIntegrationPresenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>(AppleIapIntegrationPresenceDocument, options);
+        }
+export type AppleIapIntegrationPresenceQueryHookResult = ReturnType<typeof useAppleIapIntegrationPresenceQuery>;
+export type AppleIapIntegrationPresenceLazyQueryHookResult = ReturnType<typeof useAppleIapIntegrationPresenceLazyQuery>;
+export type AppleIapIntegrationPresenceSuspenseQueryHookResult = ReturnType<typeof useAppleIapIntegrationPresenceSuspenseQuery>;
+export type AppleIapIntegrationPresenceQueryResult = Apollo.QueryResult<AppleIapIntegrationPresenceQuery, AppleIapIntegrationPresenceQueryVariables>;
 export const GetSinglePricingUnitDocument = gql`
     query getSinglePricingUnit($id: ID!) {
   pricingUnit(id: $id) {
