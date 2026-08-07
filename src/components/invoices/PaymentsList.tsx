@@ -61,6 +61,9 @@ gql`
       ... on AlipayProvider {
         name
       }
+      ... on AppleIapProvider {
+        name
+      }
       ... on CashfreeProvider {
         name
       }

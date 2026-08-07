@@ -53,9 +53,13 @@ const AvalaraIntegrationDetails = lazyLoad(
 const AvalaraIntegrations = lazyLoad(() => import('~/pages/settings/AvalaraIntegrations'))
 const AdyenIntegrations = lazyLoad(() => import('~/pages/settings/AdyenIntegrations'))
 const AlipayIntegrations = lazyLoad(() => import('~/pages/settings/AlipayIntegrations'))
+const AppleIapIntegrations = lazyLoad(() => import('~/pages/settings/AppleIapIntegrations'))
 const NetsuiteIntegrations = lazyLoad(() => import('~/pages/settings/NetsuiteIntegrations'))
 const AdyenIntegrationDetails = lazyLoad(() => import('~/pages/settings/AdyenIntegrationDetails'))
 const AlipayIntegrationDetails = lazyLoad(() => import('~/pages/settings/AlipayIntegrationDetails'))
+const AppleIapIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/AppleIapIntegrationDetails'),
+)
 const HubspotIntegrations = lazyLoad(() => import('~/pages/settings/HubspotIntegrations'))
 const HubspotIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/HubspotIntegrationDetails'),
@@ -128,6 +132,8 @@ export const ADYEN_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/adyen`
 export const ADYEN_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
 export const ALIPAY_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/alipay`
 export const ALIPAY_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/alipay/:integrationId`
+export const APPLE_IAP_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/apple-iap`
+export const APPLE_IAP_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/apple-iap/:integrationId`
 export const HUBSPOT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot`
 export const HUBSPOT_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot/:integrationId`
 export const NETSUITE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite`
@@ -297,6 +303,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: ALIPAY_INTEGRATION_ROUTE,
         private: true,
         element: <AlipayIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: APPLE_IAP_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <AppleIapIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: APPLE_IAP_INTEGRATION_ROUTE,
+        private: true,
+        element: <AppleIapIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {

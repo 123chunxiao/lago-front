@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useMemo } from 'react'
 
 import {
   PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery,
@@ -18,6 +19,13 @@ gql`
         }
 
         ... on AlipayProvider {
+          __typename
+          id
+          name
+          code
+        }
+
+        ... on AppleIapProvider {
           __typename
           id
           name
@@ -73,15 +81,37 @@ export const usePaymentProviders = (): {
       variables: { limit: 1000 },
     })
 
+  // Apple IAP transactions are verified directly against App Store Server APIs.
+  // It is not a reusable invoice payment method and must not appear in customer payment settings.
+  const invoicePaymentProviders = useMemo(() => {
+    if (!paymentProviders?.paymentProviders) return paymentProviders
+
+    return {
+      ...paymentProviders,
+      paymentProviders: {
+        ...paymentProviders.paymentProviders,
+        collection: paymentProviders.paymentProviders.collection.filter(
+          (provider) => (provider as { __typename?: string }).__typename !== 'AppleIapProvider',
+        ),
+      },
+    }
+  }, [paymentProviders])
+
   const getPaymentProvider = (code: string | undefined): ProviderTypeEnum | null => {
     if (!code) return null
 
-    const provider = paymentProviders?.paymentProviders?.collection.find((p) => p.code === code)
+    const provider = invoicePaymentProviders?.paymentProviders?.collection.find(
+      (paymentProvider) => paymentProvider.code === code,
+    )
 
     if (!provider) return null
 
     return provider.__typename.toLocaleLowerCase().replace('provider', '') as ProviderTypeEnum
   }
 
-  return { paymentProviders, isLoadingPaymentProviders, getPaymentProvider }
+  return {
+    paymentProviders: invoicePaymentProviders,
+    isLoadingPaymentProviders,
+    getPaymentProvider,
+  }
 }

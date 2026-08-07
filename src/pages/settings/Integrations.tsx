@@ -29,6 +29,10 @@ import {
   AddAnrokDialogRef,
 } from '~/components/settings/integrations/AddAnrokDialog'
 import {
+  AddAppleIapDialog,
+  AddAppleIapDialogRef,
+} from '~/components/settings/integrations/AddAppleIapDialog'
+import {
   AddAvalaraDialog,
   AddAvalaraDialogRef,
 } from '~/components/settings/integrations/AddAvalaraDialog'
@@ -80,6 +84,7 @@ import {
   ADYEN_INTEGRATION_ROUTE,
   ALIPAY_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
+  APPLE_IAP_INTEGRATION_ROUTE,
   AVALARA_INTEGRATION_ROUTE,
   CASHFREE_INTEGRATION_ROUTE,
   FLUTTERWAVE_INTEGRATION_ROUTE,
@@ -107,6 +112,7 @@ import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import Alipay from '~/public/images/alipay.svg'
 import Anrok from '~/public/images/anrok.svg'
+import AppleIap from '~/public/images/apple-iap.svg'
 import Avalara from '~/public/images/avalara.svg'
 import Cashfree from '~/public/images/cashfree.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'
@@ -193,6 +199,7 @@ const Integrations = () => {
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const addAlipayDialogRef = useRef<AddAlipayDialogRef>(null)
+  const addAppleIapDialogRef = useRef<AddAppleIapDialogRef>(null)
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
   const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
@@ -223,6 +230,22 @@ const Integrations = () => {
       variables: { limit: 1, type: ProviderTypeEnum.Alipay },
     },
   )
+  const { data: appleIapData } = useQuery(
+    gql`
+      query appleIapIntegrationPresence($limit: Int, $type: ProviderTypeEnum) {
+        paymentProviders(limit: $limit, type: $type) {
+          collection {
+            ... on AppleIapProvider {
+              id
+            }
+          }
+        }
+      }
+    `,
+    {
+      variables: { limit: 1, type: 'apple_iap' },
+    },
+  )
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
 
@@ -235,6 +258,7 @@ const Integrations = () => {
     (provider) => provider?.__typename === 'AdyenProvider',
   )
   const hasAlipayIntegration = !!alipayData?.paymentProviders?.collection?.length
+  const hasAppleIapIntegration = !!appleIapData?.paymentProviders?.collection?.length
   const hasStripeIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'StripeProvider',
   )
@@ -784,6 +808,36 @@ const Integrations = () => {
                       />
                       <Selector
                         fullWidth
+                        title={translate('text_1783468800000appleiapname')}
+                        subtitle={translate('text_1783468800000appleiapsubtitle')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <AppleIap />
+                          </Avatar>
+                        }
+                        endContent={getEndContent({
+                          showConnectedBadge: hasAppleIapIntegration,
+                        })}
+                        hoverActions={getHoverActions(
+                          hasAppleIapIntegration,
+                          generatePath(APPLE_IAP_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                          }),
+                        )}
+                        onClick={() => {
+                          if (hasAppleIapIntegration) {
+                            navigate(
+                              generatePath(APPLE_IAP_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                              }),
+                            )
+                          } else {
+                            addAppleIapDialogRef.current?.openDialog()
+                          }
+                        }}
+                      />
+                      <Selector
+                        fullWidth
                         title={translate('text_1727619878796wmgcntkfycn')}
                         subtitle={translate('text_634ea0ecc6147de10ddb6631')}
                         icon={
@@ -911,6 +965,7 @@ const Integrations = () => {
       <AddAvalaraDialog ref={addAvalaraDialogRef} />
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddAlipayDialog ref={addAlipayDialogRef} />
+      <AddAppleIapDialog ref={addAppleIapDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
       <AddCashfreeDialog ref={addCashfreeDialogRef} />
       <AddMoneyhashDialog ref={addMoneyhashDialogRef} />

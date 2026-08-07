@@ -8,6 +8,7 @@ import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Alipay from '~/public/images/alipay.svg'
+import AppleIap from '~/public/images/apple-iap.svg'
 import Cashfree from '~/public/images/cashfree.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'
 import Gocardless from '~/public/images/gocardless.svg'
@@ -28,6 +29,7 @@ const providerLabels: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Stripe]: 'text_62b1edddbf5f461ab971277d',
   [ProviderTypeEnum.Adyen]: 'text_645d071272418a14c1c76a6d',
   [ProviderTypeEnum.Alipay]: 'text_1782864000000alipayname',
+  [ProviderTypeEnum.AppleIap]: 'text_1783468800000appleiapname',
   [ProviderTypeEnum.Gocardless]: 'text_634ea0ecc6147de10ddb6625',
   [ProviderTypeEnum.Cashfree]: 'text_17367626793434wkg1rk0114',
   [ProviderTypeEnum.Flutterwave]: 'text_1749724395108m0swrna0zt4',
@@ -39,6 +41,7 @@ const ProviderIcon: FC<{ provider: ProviderTypeEnum }> = ({ provider }) => {
     [ProviderTypeEnum.Stripe]: <Stripe />,
     [ProviderTypeEnum.Adyen]: <Adyen />,
     [ProviderTypeEnum.Alipay]: <Alipay />,
+    [ProviderTypeEnum.AppleIap]: <AppleIap />,
     [ProviderTypeEnum.Gocardless]: <Gocardless />,
     [ProviderTypeEnum.Cashfree]: <Cashfree />,
     [ProviderTypeEnum.Flutterwave]: <Flutterwave />,

@@ -107,6 +107,12 @@ gql`
           code
         }
 
+        ... on AppleIapProvider {
+          id
+          name
+          code
+        }
+
         ... on GocardlessProvider {
           id
           name

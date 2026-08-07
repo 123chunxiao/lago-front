@@ -38,6 +38,9 @@ gql`
       ... on AlipayProvider {
         id
       }
+      ... on AppleIapProvider {
+        id
+      }
       ... on CashfreeProvider {
         id
       }
