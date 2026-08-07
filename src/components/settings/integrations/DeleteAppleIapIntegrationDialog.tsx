@@ -32,7 +32,7 @@ export const useDeleteAppleIapIntegrationDialog = () => {
       onAction: async () => {
         const response = await deleteAppleIap({
           variables: { input: { id: provider?.id as string } },
-          refetchQueries: ['appleIapIntegrationPresence', 'getAppleIapIntegrationsList'],
+          refetchQueries: ['integrationsSetting', 'getAppleIapIntegrationsList'],
         })
 
         if (response.data?.destroyPaymentProvider?.id) {

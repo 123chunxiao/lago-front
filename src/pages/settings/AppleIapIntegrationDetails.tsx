@@ -169,11 +169,6 @@ const AppleIapIntegrationDetails = () => {
                 value={provider.keyId}
               />
               <IntegrationsPage.DetailsItem
-                icon="key"
-                label={translate('text_1783468800000appleiapprivatekey')}
-                value={provider.privateKey || '••••••••'}
-              />
-              <IntegrationsPage.DetailsItem
                 icon="id"
                 label={translate('text_1783468800000appleiapbundleid')}
                 value={provider.bundleId}

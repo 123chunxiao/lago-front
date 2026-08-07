@@ -21,7 +21,6 @@ export const APPLE_IAP_PROVIDER_FIELDS = gql`
     code
     issuerId
     keyId
-    privateKey
     bundleId
     appAppleId
     productIds
@@ -84,14 +83,13 @@ export type AppleIapProvider = {
   code: string
   issuerId: string
   keyId: string
-  privateKey?: string | null
   bundleId: string
   appAppleId: string
   productIds: string[]
   webhookBaseUrl?: string | null
 }
 
-type AppleIapForm = Omit<AppleIapProvider, 'id' | 'privateKey' | 'productIds'> & {
+type AppleIapForm = Omit<AppleIapProvider, 'id' | 'productIds'> & {
   privateKey: string
   productIds: string
 }
@@ -128,7 +126,7 @@ export const AddAppleIapDialog = forwardRef<AddAppleIapDialogRef>((_, ref) => {
 
   const [getProviderByCode] = useLazyQuery(GET_PROVIDER_BY_CODE)
   const mutationOptions = {
-    refetchQueries: ['appleIapIntegrationPresence', 'getAppleIapIntegrationsList'],
+    refetchQueries: ['integrationsSetting', 'getAppleIapIntegrationsList'],
   }
   const [addAppleIap] = useMutation(ADD_APPLE_IAP, {
     ...mutationOptions,

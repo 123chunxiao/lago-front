@@ -200,6 +200,41 @@ describe('usePaymentProviders', () => {
       })
     })
 
+    it('should exclude Apple IAP from reusable customer payment providers', async () => {
+      const { result } = await prepare({
+        mockData: {
+          paymentProviders: {
+            collection: [
+              {
+                __typename: 'AppleIapProvider',
+                id: 'apple-iap-1',
+                name: 'Apple IAP',
+                code: 'apple-iap',
+              },
+              {
+                __typename: 'StripeProvider',
+                id: '1',
+                name: 'Stripe Main',
+                code: 'stripe-main',
+              },
+            ],
+          },
+        },
+      })
+
+      await act(() => wait(0))
+
+      expect(result.current.paymentProviders?.paymentProviders?.collection).toEqual([
+        {
+          __typename: 'StripeProvider',
+          id: '1',
+          name: 'Stripe Main',
+          code: 'stripe-main',
+        },
+      ])
+      expect(result.current.getPaymentProvider('apple-iap')).toBeNull()
+    })
+
     it('should handle all supported provider types', async () => {
       const { result } = await prepare()
 

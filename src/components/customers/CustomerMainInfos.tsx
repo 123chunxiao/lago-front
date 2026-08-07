@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 import { CustomerInfoRows } from '~/components/customers/CustomerInfoRows'
 import { CustomerIntegrationRows } from '~/components/customers/CustomerIntegrationRows'
 import { CustomerPaymentMethods } from '~/components/customers/CustomerPaymentMethods'
+import { LinkedPaymentProvider } from '~/components/customers/types'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
@@ -95,6 +96,8 @@ gql`
   query paymentProvidersListForCustomerMainInfos($limit: Int) {
     paymentProviders(limit: $limit) {
       collection {
+        __typename
+
         ... on StripeProvider {
           id
           name
@@ -102,12 +105,6 @@ gql`
         }
 
         ... on AlipayProvider {
-          id
-          name
-          code
-        }
-
-        ... on AppleIapProvider {
           id
           name
           code
@@ -153,6 +150,8 @@ interface CustomerMainInfosProps {
   onEdit?: () => unknown
 }
 
+type EligibleCustomerPaymentProvider = Exclude<LinkedPaymentProvider, undefined>
+
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
 
@@ -160,9 +159,12 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     variables: { limit: 1000 },
   })
 
-  const linkedPaymentProvider = paymentProvidersData?.paymentProviders?.collection?.find(
-    (provider) => provider?.code === customer?.paymentProviderCode,
-  )
+  const linkedPaymentProvider = paymentProvidersData?.paymentProviders?.collection
+    ?.filter(
+      (provider): provider is EligibleCustomerPaymentProvider =>
+        provider.__typename !== 'AppleIapProvider',
+    )
+    .find((provider) => provider.code === customer?.paymentProviderCode)
 
   if (loading || !customer)
     return (

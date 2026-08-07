@@ -1,7 +1,8 @@
 import { PaymentProvidersListForCustomerMainInfosQuery } from '~/generated/graphql'
 
+type CustomerPaymentProvider = NonNullable<
+  PaymentProvidersListForCustomerMainInfosQuery['paymentProviders']
+>['collection'][number]
+
 export type LinkedPaymentProvider =
-  | NonNullable<
-      PaymentProvidersListForCustomerMainInfosQuery['paymentProviders']
-    >['collection'][number]
-  | undefined
+  Exclude<CustomerPaymentProvider, { __typename: 'AppleIapProvider' }> | undefined

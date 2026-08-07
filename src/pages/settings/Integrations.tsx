@@ -152,6 +152,10 @@ gql`
           id
         }
 
+        ... on AppleIapProvider {
+          id
+        }
+
         ... on CashfreeProvider {
           id
         }
@@ -230,23 +234,6 @@ const Integrations = () => {
       variables: { limit: 1, type: ProviderTypeEnum.Alipay },
     },
   )
-  const { data: appleIapData } = useQuery(
-    gql`
-      query appleIapIntegrationPresence($limit: Int, $type: ProviderTypeEnum) {
-        paymentProviders(limit: $limit, type: $type) {
-          collection {
-            ... on AppleIapProvider {
-              id
-            }
-          }
-        }
-      }
-    `,
-    {
-      variables: { limit: 1, type: 'apple_iap' },
-    },
-  )
-
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
 
   const hasBillingEntitiesWithTaxManagement =
@@ -258,7 +245,9 @@ const Integrations = () => {
     (provider) => provider?.__typename === 'AdyenProvider',
   )
   const hasAlipayIntegration = !!alipayData?.paymentProviders?.collection?.length
-  const hasAppleIapIntegration = !!appleIapData?.paymentProviders?.collection?.length
+  const hasAppleIapIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'AppleIapProvider',
+  )
   const hasStripeIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'StripeProvider',
   )

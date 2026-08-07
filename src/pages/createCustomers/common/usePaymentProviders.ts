@@ -83,6 +83,11 @@ export const usePaymentProviders = (): {
 
   // Apple IAP transactions are verified directly against App Store Server APIs.
   // It is not a reusable invoice payment method and must not appear in customer payment settings.
+  type PaymentProvider = NonNullable<
+    PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery['paymentProviders']
+  >['collection'][number]
+  type InvoicePaymentProvider = Exclude<PaymentProvider, { __typename: 'AppleIapProvider' }>
+
   const invoicePaymentProviders = useMemo(() => {
     if (!paymentProviders?.paymentProviders) return paymentProviders
 
@@ -91,7 +96,8 @@ export const usePaymentProviders = (): {
       paymentProviders: {
         ...paymentProviders.paymentProviders,
         collection: paymentProviders.paymentProviders.collection.filter(
-          (provider) => (provider as { __typename?: string }).__typename !== 'AppleIapProvider',
+          (provider): provider is InvoicePaymentProvider =>
+            provider.__typename !== 'AppleIapProvider',
         ),
       },
     }
